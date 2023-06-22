@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:soundcode/soundcode.dart';
 import 'package:intl/intl.dart';
@@ -14,17 +15,16 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   bool permissionGranted = false;
-  AppLifecycleState lastState ;
+  late AppLifecycleState lastState;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this);
     startSoundCode();
-
   }
 
-  startSoundCode(){
+  startSoundCode() {
     SoundCode().requestPermission().then((granted) {
       if (granted) {
         SoundCode().start();
@@ -36,10 +36,10 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(final AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) {
     print(state.toString());
     if (state == AppLifecycleState.resumed) {
-      if(lastState==AppLifecycleState.paused) {
+      if (lastState == AppLifecycleState.paused) {
         startSoundCode();
       }
     }
@@ -51,46 +51,53 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     var permission;
-    if(permissionGranted)
-      {
-        permission = Text("Mic permission: OK", style: TextStyle(color: Colors.greenAccent,fontSize: 15),);
-      }
-    else{
+    if (permissionGranted) {
+      permission = Text(
+        "Mic permission: OK",
+        style: TextStyle(color: Colors.greenAccent, fontSize: 15),
+      );
+    } else {
       permission = GestureDetector(
-        child: Text("Mic permission: <tap to enable>", style: TextStyle(color: Colors.deepOrangeAccent,fontSize: 15),),
-        onTap: (){startSoundCode();},
+        child: Text(
+          "Mic permission: <tap to enable>",
+          style: TextStyle(color: Colors.deepOrangeAccent, fontSize: 15),
+        ),
+        onTap: () {
+          startSoundCode();
+        },
       );
     }
     return MaterialApp(
       home: Scaffold(
-        appBar:
-        AppBar(
-           title: const Text('Flutter Demo'),
+        appBar: AppBar(
+          title: const Text('Flutter Demo'),
         ),
         body: Center(
-            child: Column(
-          children: [
-            Container(
+          child: Column(
+            children: [
+              Container(
                 margin: EdgeInsets.all(25.0),
                 child: Image.asset(
                   'assets/images/logo.png',
                   width: 100,
-                )),
-            Text("SoundCode SDK Demo", style: TextStyle(fontSize: 20)),
-            Text('www.cifrasoft.com'),
-            Container(height: 10,),
-            permission,
-            Container(height: 10,),
-            Expanded(child: MyListView())
-          ],
-        )),
+                ),
+              ),
+              Text("SoundCode SDK Demo", style: TextStyle(fontSize: 20)),
+              Text('www.cifrasoft.com'),
+              Container(height: 10),
+              permission,
+              Container(height: 10),
+              Expanded(child: MyListView()),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -106,15 +113,21 @@ class MyListViewState extends State<MyListView> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     SoundCode().setCallback(callback: (List<int> data) {
-      setState(() {list.insert(0,new ListItem(data));});
+      setState(() {
+        list.insert(0, ListItem(data));
+      });
     });
-    SoundCode().setErrorCallback(error: (){
-      Scaffold.of(context).showSnackBar(SnackBar(
-        content: Container(child:Center(child:Text("Audio Init Failed!")), height: 30,),
-      ));
+    SoundCode().setErrorCallback(error: () {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Container(
+            child: Center(child: Text("Audio Init Failed!")),
+            height: 30,
+          ),
+        ),
+      );
     });
   }
 
@@ -130,26 +143,30 @@ class MyListViewState extends State<MyListView> {
       itemBuilder: (context, i) {
         return ListTile(
           title: list[i],
-          onLongPress: (){print("tap");showAlertDialog(context);},
+          onLongPress: () {
+            print("tap");
+            showAlertDialog(context);
+          },
         );
       },
     );
   }
 
   showAlertDialog(BuildContext context) {
-
     // set up the buttons
-    Widget cancelButton = FlatButton(
+    Widget cancelButton = TextButton(
       child: Text("Cancel"),
-      onPressed:  () {Navigator.pop(context);},
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
     );
-    Widget continueButton = FlatButton(
+    Widget continueButton = TextButton(
       child: Text("OK"),
-      onPressed:  () {
+      onPressed: () {
         list.clear();
-        Navigator.pop(context);
-        setState(() {
-      });},
+        Navigator.of(context).pop();
+        setState(() {});
+      },
     );
 
     // set up the AlertDialog
@@ -173,24 +190,15 @@ class MyListViewState extends State<MyListView> {
 }
 
 class ListItem extends StatelessWidget {
-  List<int> data;
-  String time;
+  final List<int> data;
+  final String time;
 
-  ListItem(this.data) {
-    var now = DateTime.now();
-    DateFormat formatter = DateFormat('HH:mm:ss');
-    this.time = formatter.format(now);
-  }
+  ListItem(this.data) : time = DateFormat('HH:mm:ss').format(DateTime.now());
 
   @override
   Widget build(BuildContext context) {
-    return Text(time +
-        " CODE:" +
-        data[1].toString() +
-        " CNT:" +
-        data[2].toString() +
-        " TIME:" +
-        (data[3] / 1000.0).toStringAsFixed(1) +
-        "sec.");
+    return Text(
+      time + " CODE:" + data[1].toString() + " CNT:" + data[2].toString() + " TIME:" + (data[3] / 1000.0).toStringAsFixed(1) + "sec.",
+    );
   }
 }

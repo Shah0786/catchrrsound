@@ -41,13 +41,13 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.aar'])
-//    implementation(name:'audioRecordLib-release', ext:'aar')
-//    implementation(name:'soundCode2Lib-release', ext:'aar')
+    // implementation fileTree(dir: 'libs', include: ['*.aar'])
+   implementation(name:'audioRecordLib-release', ext:'aar')
+   implementation(name:'soundCode2Lib-release', ext:'aar')
 }
 
-//repositories{
-//    flatDir{
-//        dirs 'libs'
-//    }
-//}
+repositories{
+   flatDir{
+       dirs 'libs'
+   }
+}
